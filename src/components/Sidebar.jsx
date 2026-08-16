@@ -170,9 +170,10 @@ export const Sidebar = ({ activeTab, setActiveTab, mobileOpen, onCloseMobile }) 
         <div className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-950 border border-zinc-800">
           <div className="flex items-center space-x-2.5 overflow-hidden">
             <img
-              src={user?.photo || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"}
+              src={user?.photo && !user.photo.includes('unsplash') ? user.photo : "/logo.png"}
               alt={user?.full_name}
               className="w-9 h-9 rounded-xl object-cover border border-zinc-700 shadow-sm shrink-0"
+              onError={(e) => { e.target.onerror = null; e.target.src = '/logo.png'; }}
             />
             <div className="truncate">
               <span className="font-bold text-xs text-white block truncate">{user?.full_name || 'Harivasan V'}</span>

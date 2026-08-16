@@ -27,7 +27,14 @@ const getValidSavedUser = () => {
         return null;
       }
     }
-    return JSON.parse(savedUser);
+    const parsed = JSON.parse(savedUser);
+    const savedAvatar = localStorage.getItem('hafa_admin_avatar');
+    if (savedAvatar) {
+      parsed.photo = savedAvatar;
+    } else if (!parsed.photo || parsed.photo.includes('unsplash')) {
+      parsed.photo = '/logo.png';
+    }
+    return parsed;
   } catch (err) {
     return null;
   }
@@ -66,10 +73,15 @@ export const AuthProvider = ({ children }) => {
       const res = await apiCall('login', { email, password });
       if (res.success && res.user) {
         const expiryTime = Date.now() + SESSION_TTL_MS;
-        setUser(res.user);
+        const savedAvatar = localStorage.getItem('hafa_admin_avatar');
+        const userObj = {
+          ...res.user,
+          photo: savedAvatar || (res.user.photo && !res.user.photo.includes('unsplash') ? res.user.photo : '/logo.png')
+        };
+        setUser(userObj);
         setToken(res.token || 'mock_token');
 
-        localStorage.setItem('geotrack_user', JSON.stringify(res.user));
+        localStorage.setItem('geotrack_user', JSON.stringify(userObj));
         localStorage.setItem('geotrack_token', res.token || 'mock_token');
         localStorage.setItem(SESSION_EXPIRY_KEY, expiryTime.toString());
 
@@ -126,6 +138,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (updatedFields) => {
+    if (updatedFields.photo) {
+      localStorage.setItem('hafa_admin_avatar', updatedFields.photo);
+    }
     const updated = { ...user, ...updatedFields };
     setUser(updated);
     localStorage.setItem('geotrack_user', JSON.stringify(updated));

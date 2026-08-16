@@ -81,9 +81,10 @@ export const Navbar = ({ onOpenSettings, onToggleMobileMenu }) => {
           {user && (
             <div className="flex items-center space-x-2 sm:space-x-3 pl-1.5 sm:pl-2 border-l border-slate-200 dark:border-zinc-800">
               <img
-                src={user.photo || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"}
+                src={user.photo && !user.photo.includes('unsplash') ? user.photo : "/logo.png"}
                 alt={user.full_name}
                 className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-slate-300 dark:border-zinc-700 shadow-sm"
+                onError={(e) => { e.target.onerror = null; e.target.src = '/logo.png'; }}
               />
               <div className="hidden lg:block text-left">
                 <div className="flex items-center space-x-1.5">

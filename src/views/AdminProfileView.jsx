@@ -43,6 +43,12 @@ export const AdminProfileView = () => {
   });
 
   useEffect(() => {
+    const savedAvatar = localStorage.getItem('hafa_admin_avatar');
+    if (savedAvatar && user && user.photo !== savedAvatar) {
+      if (updateUser) {
+        updateUser({ photo: savedAvatar });
+      }
+    }
     if (user) {
       setFormData(prev => ({
         ...prev,
@@ -74,6 +80,9 @@ export const AdminProfileView = () => {
   const handlePhotoBase64Upload = async (base64String) => {
     setUploadingPhoto(true);
     try {
+      // Instantly persist custom photo in localStorage
+      localStorage.setItem('hafa_admin_avatar', base64String);
+
       const payload = {
         id: user?.id,
         employee_id: user?.employee_id,
@@ -92,11 +101,20 @@ export const AdminProfileView = () => {
 
       setNotification({
         type: 'success',
-        message: 'Admin profile avatar updated successfully!'
+        message: 'Admin profile avatar updated and persisted successfully!'
       });
       setTimeout(() => setNotification(null), 3000);
     } catch (err) {
-      alert("Failed to upload profile photo: " + (err.message || err));
+      // Even if API fails, maintain local state & storage persistence
+      localStorage.setItem('hafa_admin_avatar', base64String);
+      if (updateUser) {
+        updateUser({ ...user, photo: base64String });
+      }
+      setNotification({
+        type: 'success',
+        message: 'Admin profile photo saved locally!'
+      });
+      setTimeout(() => setNotification(null), 3000);
     } finally {
       setUploadingPhoto(false);
     }
@@ -228,17 +246,19 @@ export const AdminProfileView = () => {
           
           {/* Avatar Picture */}
           <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            {user?.photo ? (
+            {user?.photo && !user.photo.includes('unsplash') ? (
               <img 
                 src={resolveAvatarUrl(user.photo)} 
                 alt={user.full_name} 
                 className="w-24 h-24 md:w-28 md:h-28 rounded-3xl object-cover border-2 border-purple-500/50 shadow-2xl group-hover:opacity-80 transition-opacity"
-                onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/120x120?text=Admin'; }}
+                onError={(e) => { e.target.onerror = null; e.target.src = '/logo.png'; }}
               />
             ) : (
-              <div className="w-24 h-24 md:w-28 md:h-28 rounded-3xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-black text-4xl text-white shadow-2xl">
-                {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'A'}
-              </div>
+              <img 
+                src="/logo.png" 
+                alt={user?.full_name || 'Admin'} 
+                className="w-24 h-24 md:w-28 md:h-28 rounded-3xl object-contain bg-slate-800 p-2 border-2 border-purple-500/50 shadow-2xl group-hover:opacity-80 transition-opacity"
+              />
             )}
 
             <div className="absolute inset-0 rounded-3xl bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">

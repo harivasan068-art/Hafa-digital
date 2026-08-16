@@ -184,9 +184,10 @@ export const AdminEmployeeManagementView = () => {
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-3">
                 <img
-                  src={emp.photo || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"}
+                  src={emp.photo && !emp.photo.includes('unsplash') ? emp.photo : "/logo.png"}
                   alt={emp.full_name}
                   className="w-12 h-12 rounded-xl object-cover border border-slate-700 shadow-sm"
+                  onError={(e) => { e.target.onerror = null; e.target.src = '/logo.png'; }}
                 />
                 <div>
                   <h3 className="font-bold text-white text-sm">{emp.full_name}</h3>
