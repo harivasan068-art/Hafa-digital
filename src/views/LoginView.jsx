@@ -5,10 +5,10 @@ import { MobileInstallShortcut } from '../components/MobileInstallShortcut';
 import { BackgroundWatermark } from '../components/BackgroundWatermark';
 import { 
   ShieldCheck, MapPin, Mail, Lock, User, Phone, Briefcase, 
-  ArrowRight, CheckCircle2, AlertCircle, Sparkles 
+  ArrowRight, ArrowLeft, CheckCircle2, AlertCircle, Sparkles 
 } from 'lucide-react';
 
-export const LoginView = () => {
+export const LoginView = ({ onBack }) => {
   const { login, register } = useAuth();
   const [mode, setMode] = useState('login'); // 'login' or 'register'
 
@@ -78,7 +78,20 @@ export const LoginView = () => {
       {/* Floating Centered Background Watermark Logo */}
       <BackgroundWatermark />
 
-      {/* Top Header Toolbar with Theme Toggle */}
+      {/* Top Left Navigation: Glassmorphic Back to Home Button */}
+      <div className="absolute top-4 left-4 z-30">
+        <button
+          type="button"
+          onClick={() => onBack && onBack()}
+          className="px-3.5 py-2 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 backdrop-blur-md text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-orange-500/50 shadow-md font-extrabold text-xs flex items-center space-x-2 transition-all active:scale-95 cursor-pointer"
+          title="Back to Home Landing Page"
+        >
+          <ArrowLeft className="w-4 h-4 text-orange-500" />
+          <span className="hidden sm:inline">Back to Home</span>
+        </button>
+      </div>
+
+      {/* Top Right Header Toolbar with Theme Toggle */}
       <div className="absolute top-4 right-4 z-30">
         <ThemeToggle showLabel={true} />
       </div>
