@@ -6,68 +6,7 @@ import {
   Search, Filter, RefreshCw, AlertTriangle, FileSpreadsheet, Calendar
 } from 'lucide-react';
 
-const MOCK_TASKS = [
-  {
-    id: 'idx_prod_101',
-    item_name: 'Client Promo Reel - Hafa Digital',
-    cameraman: 'basith',
-    shoot_date: '2026-08-01',
-    editor: 'aslam',
-    edit_date: '2026-08-03',
-    delivery_date: '2026-08-04',
-    upload_date: '2026-08-05',
-    status: 'Delivered',
-    remarks: 'Client approved v2 edit with zero revisions.'
-  },
-  {
-    id: 'idx_prod_102',
-    item_name: 'Product Launch Teaser',
-    cameraman: 'Harivasan',
-    shoot_date: '2026-08-05',
-    editor: 'basith',
-    edit_date: '2026-08-07',
-    delivery_date: '2026-08-08',
-    upload_date: '2026-08-09',
-    status: 'Uploaded',
-    remarks: 'Uploaded to YouTube (4K) & Instagram Reels.'
-  },
-  {
-    id: 'idx_prod_103',
-    item_name: 'Corporate HQ Tour Video',
-    cameraman: 'aslam',
-    shoot_date: '2026-08-10',
-    editor: 'Harivasan',
-    edit_date: '2026-08-12',
-    delivery_date: '2026-08-14',
-    upload_date: '',
-    status: 'Editing Completed',
-    remarks: 'Color grading finalized, awaiting upload approval.'
-  },
-  {
-    id: 'idx_prod_104',
-    item_name: 'HR Training Video Series #2',
-    cameraman: 'basith',
-    shoot_date: '2026-08-13',
-    editor: 'aslam',
-    edit_date: '',
-    delivery_date: '',
-    upload_date: '',
-    status: 'In Progress',
-    remarks: 'A-roll shot; pending B-roll overlay editing.'
-  },
-  {
-    id: 'idx_prod_105',
-    item_name: 'Customer Testimonial - Tech Corp',
-    cameraman: 'Harivasan',
-    shoot_date: '',
-    editor: 'Harivasan',
-    edit_date: '',
-    delivery_date: '',
-    upload_date: '',
-    status: 'Pending',
-    remarks: 'Awaiting client location scheduling.'
-  }
-];
+const MOCK_TASKS = [];
 
 export const EmployeePerformanceView = () => {
   const { user } = useAuth();

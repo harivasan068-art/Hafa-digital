@@ -8,74 +8,13 @@ import {
 
 export const EmployeeTimesheetView = ({ employeeId }) => {
   const { user } = useAuth();
-  const activeEmployeeId = employeeId || user?.employee_id || 'EMP836121';
+  const activeEmployeeId = employeeId || user?.employee_id || '';
   
   const [selectedMonth, setSelectedMonth] = useState('2026-08');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
-
-  // Generate fallback realistic monthly timesheet records
-  const generateMockTimesheet = (monthStr) => {
-    const records = [];
-    const [year, month] = monthStr.split('-').map(Number);
-    const daysInMonth = new Date(year, month, 0).getDate();
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dateObj = new Date(year, month - 1, day);
-      const dayOfWeek = dateObj.getDay();
-      
-      // Skip Sundays
-      if (dayOfWeek === 0) continue;
-
-      const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      
-      // Skip future dates
-      if (dateObj > new Date()) continue;
-
-      let status = 'Present';
-      let checkIn = '09:00 AM';
-      let checkOut = '06:00 PM';
-      let hours = 9.0;
-      let geofenceStatus = 'Verified';
-
-      if (day % 7 === 2) {
-        status = 'Late Arrival';
-        checkIn = '09:42 AM';
-        checkOut = '06:15 PM';
-        hours = 8.5;
-        geofenceStatus = 'Verified';
-      } else if (day % 11 === 0) {
-        status = 'Half Day';
-        checkIn = '09:05 AM';
-        checkOut = '01:30 PM';
-        hours = 4.4;
-        geofenceStatus = 'Verified';
-      } else if (day % 9 === 0) {
-        status = 'Present';
-        checkIn = '09:12 AM';
-        checkOut = '06:00 PM';
-        hours = 8.8;
-        geofenceStatus = 'Flagged (Remote Site)';
-      }
-
-      records.push({
-        id: `ATT-${dateString}-${activeEmployeeId}`,
-        employee_id: activeEmployeeId,
-        date: dateString,
-        check_in: checkIn,
-        check_out: checkOut,
-        total_hours: hours,
-        status: status,
-        geofence_status: geofenceStatus,
-        location: geofenceStatus === 'Verified' ? 'GeoTrack HQ (Chennai)' : 'Client On-Site (Ambattur)',
-        task_notes: status === 'Half Day' ? 'Approved half day leave for personal medical appointment' : 'On-site technical support and field asset deployment.'
-      });
-    }
-
-    return records.sort((a, b) => new Date(b.date) - new Date(a.date));
-  };
 
   useEffect(() => {
     loadTimesheetData();
@@ -84,23 +23,20 @@ export const EmployeeTimesheetView = ({ employeeId }) => {
   const loadTimesheetData = async () => {
     setLoading(true);
     try {
+      if (!activeEmployeeId) {
+        setAttendanceRecords([]);
+        return;
+      }
       const res = await apiCall('getAttendance', { employee_id: activeEmployeeId });
       let fetched = [];
       if (Array.isArray(res)) fetched = res;
       else if (res?.records && Array.isArray(res.records)) fetched = res.records;
 
-      // Filter by selected month or fallback
+      // Filter by selected month
       const filteredApiData = fetched.filter(r => r.date && r.date.startsWith(selectedMonth));
-
-      if (filteredApiData.length > 0) {
-        setAttendanceRecords(filteredApiData);
-      } else {
-        // Use comprehensive mock dataset for selected month
-        setAttendanceRecords(generateMockTimesheet(selectedMonth));
-      }
+      setAttendanceRecords(filteredApiData);
     } catch (err) {
-      console.warn("[TimesheetView] Using mock data fallback:", err);
-      setAttendanceRecords(generateMockTimesheet(selectedMonth));
+      setAttendanceRecords([]);
     } finally {
       setLoading(false);
     }

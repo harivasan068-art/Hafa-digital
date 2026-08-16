@@ -13,7 +13,7 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
   const { location, distanceMeters, isInsideGeofence } = useGeolocation(officeSettings);
   const [attendance, setAttendance] = useState([]);
   const [activeCheckIn, setActiveCheckIn] = useState(null);
-  const [stats, setStats] = useState({ presentDays: 18, hoursLogged: 144, pendingApprovals: 1 });
+  const [stats, setStats] = useState({ presentDays: 0, hoursLogged: 0, pendingApprovals: 0 });
 
   useEffect(() => {
     loadData();
@@ -30,9 +30,9 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
       const presentCount = res.records.filter(r => r.status === 'Present').length;
       const pendingCount = res.records.filter(r => r.status === 'Pending').length;
       setStats({
-        presentDays: presentCount || 18,
-        hoursLogged: (presentCount || 18) * 8,
-        pendingApprovals: pendingCount || 1
+        presentDays: presentCount,
+        hoursLogged: presentCount * 8,
+        pendingApprovals: pendingCount
       });
     }
   };

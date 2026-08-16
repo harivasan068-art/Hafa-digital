@@ -85,7 +85,6 @@ function setupDatabaseAndDrive() {
   var empSheet = ss.getSheetByName(CONFIG.TABS.EMPLOYEES);
   if (empSheet && empSheet.getLastRow() <= 1) {
     var adminPasswordHash = hashPassword("Aaliya2009");
-    var empPasswordHash = hashPassword("Employee@123");
 
     // Add Admin user
     appendObjectToSheet(CONFIG.TABS.EMPLOYEES, {
@@ -104,24 +103,7 @@ function setupDatabaseAndDrive() {
       created_at: new Date().toISOString()
     });
 
-    // Add Standard Employee user
-    appendObjectToSheet(CONFIG.TABS.EMPLOYEES, {
-      id: "emp_john_002",
-      employee_id: "EMP-2026-002",
-      full_name: "John Doe",
-      email: "john.doe@geotrack.com",
-      password_hash: empPasswordHash,
-      phone: "+1 (555) 014-9821",
-      department: "Engineering",
-      designation: "Senior Frontend Engineer",
-      role: CONFIG.ROLES.EMPLOYEE,
-      status: "ACTIVE",
-      photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
-      joining_date: "2024-03-15",
-      created_at: new Date().toISOString()
-    });
-
-    logMessages.push("Seeded initial Admin (admin@geotrack.com) and Employee (john.doe@geotrack.com)");
+    logMessages.push("Seeded single Admin account (hafadigital75@gmail.com)");
   }
 
   // 3. Initialize Company Settings if empty

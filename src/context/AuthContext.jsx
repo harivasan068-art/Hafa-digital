@@ -92,26 +92,7 @@ export const AuthProvider = ({ children }) => {
           photo: savedAvatar || '/logo.png'
         };
       }
-      // 2. Direct Employee Credential Validation (harivasan@geotrack.com / demo1234 or Employee@123)
-      else if (
-        cleanEmail === 'harivasan@geotrack.com' && 
-        (cleanPassword === 'demo1234' || cleanPassword === 'Employee@123')
-      ) {
-        const savedAvatar = localStorage.getItem('hafa_admin_avatar');
-        userObj = {
-          id: 'emp_hari_836',
-          employee_id: 'EMP836121',
-          full_name: 'Harivasan V',
-          email: 'harivasan@geotrack.com',
-          phone: '+91 98765 43210',
-          role: 'EMPLOYEE',
-          department: 'Field Operations',
-          designation: 'Senior Field Technician',
-          status: 'ACTIVE',
-          photo: savedAvatar || '/logo.png'
-        };
-      }
-      // 3. Fallback / Live Backend API Call for other registered accounts
+      // 2. Dynamic Backend / Google Apps Script Authentication for All Registered Accounts
       else {
         const res = await apiCall('login', { email: cleanEmail, password: cleanPassword });
         if (res.success && res.user) {
