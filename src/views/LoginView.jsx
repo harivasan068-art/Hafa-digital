@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { MobileInstallShortcut } from '../components/MobileInstallShortcut';
+import { BackgroundWatermark } from '../components/BackgroundWatermark';
 import { 
   ShieldCheck, MapPin, Mail, Lock, User, Phone, Briefcase, 
   ArrowRight, CheckCircle2, AlertCircle, Sparkles 
@@ -74,6 +75,9 @@ export const LoginView = () => {
   return (
     <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-4 relative overflow-hidden text-slate-900 dark:text-zinc-100 transition-colors duration-300">
       
+      {/* Floating Centered Background Watermark Logo */}
+      <BackgroundWatermark />
+
       {/* Top Header Toolbar with Theme Toggle */}
       <div className="absolute top-4 right-4 z-30">
         <ThemeToggle showLabel={true} />
