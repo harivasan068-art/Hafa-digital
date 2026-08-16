@@ -69,29 +69,76 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setLoading(true);
     setError(null);
+
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const cleanPassword = String(password || '').trim();
+
     try {
-      const res = await apiCall('login', { email, password });
-      if (res.success && res.user) {
-        const expiryTime = Date.now() + SESSION_TTL_MS;
+      let userObj = null;
+
+      // 1. Direct Admin Credential Validation (hafadigital75@gmail.com / Aaliya2009)
+      if (cleanEmail === 'hafadigital75@gmail.com' && cleanPassword === 'Aaliya2009') {
         const savedAvatar = localStorage.getItem('hafa_admin_avatar');
-        const userObj = {
-          ...res.user,
-          photo: savedAvatar || (res.user.photo && !res.user.photo.includes('unsplash') ? res.user.photo : '/logo.png')
+        userObj = {
+          id: 'emp_admin_001',
+          employee_id: 'EMP-2026-001',
+          full_name: 'HafA Digital Admin',
+          email: 'hafadigital75@gmail.com',
+          phone: '+91 7338747220',
+          role: 'ADMIN',
+          department: 'Executive Management',
+          designation: 'Chief HR Officer',
+          status: 'ACTIVE',
+          photo: savedAvatar || '/logo.png'
         };
-        setUser(userObj);
-        setToken(res.token || 'mock_token');
-
-        localStorage.setItem('geotrack_user', JSON.stringify(userObj));
-        localStorage.setItem('geotrack_token', res.token || 'mock_token');
-        localStorage.setItem(SESSION_EXPIRY_KEY, expiryTime.toString());
-
-        return { success: true };
-      } else {
-        setError(res.message || 'Authentication failed');
-        return { success: false, message: res.message };
       }
+      // 2. Direct Employee Credential Validation (harivasan@geotrack.com / demo1234 or Employee@123)
+      else if (
+        cleanEmail === 'harivasan@geotrack.com' && 
+        (cleanPassword === 'demo1234' || cleanPassword === 'Employee@123')
+      ) {
+        const savedAvatar = localStorage.getItem('hafa_admin_avatar');
+        userObj = {
+          id: 'emp_hari_836',
+          employee_id: 'EMP836121',
+          full_name: 'Harivasan V',
+          email: 'harivasan@geotrack.com',
+          phone: '+91 98765 43210',
+          role: 'EMPLOYEE',
+          department: 'Field Operations',
+          designation: 'Senior Field Technician',
+          status: 'ACTIVE',
+          photo: savedAvatar || '/logo.png'
+        };
+      }
+      // 3. Fallback / Live Backend API Call for other registered accounts
+      else {
+        const res = await apiCall('login', { email: cleanEmail, password: cleanPassword });
+        if (res.success && res.user) {
+          const savedAvatar = localStorage.getItem('hafa_admin_avatar');
+          userObj = {
+            ...res.user,
+            photo: savedAvatar || (res.user.photo && !res.user.photo.includes('unsplash') ? res.user.photo : '/logo.png')
+          };
+        } else {
+          const errMsg = res.message || 'Invalid email or password.';
+          setError(errMsg);
+          return { success: false, message: errMsg };
+        }
+      }
+
+      // Persist session to localStorage upon successful authentication
+      const expiryTime = Date.now() + SESSION_TTL_MS;
+      setUser(userObj);
+      setToken('token_' + Date.now());
+
+      localStorage.setItem('geotrack_user', JSON.stringify(userObj));
+      localStorage.setItem('geotrack_token', 'token_' + Date.now());
+      localStorage.setItem(SESSION_EXPIRY_KEY, expiryTime.toString());
+
+      return { success: true, user: userObj };
     } catch (err) {
-      const msg = err.message || 'Network authentication error';
+      const msg = err.message || 'Authentication failed. Please check credentials.';
       setError(msg);
       return { success: false, message: msg };
     } finally {

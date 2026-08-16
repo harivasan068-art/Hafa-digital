@@ -221,7 +221,7 @@ export const LoginView = ({ onBack }) => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => { setEmail('harivasan@geotrack.com'); setPassword('Employee@123'); }}
+                    onClick={() => { setEmail('harivasan@geotrack.com'); setPassword('demo1234'); }}
                     className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 hover:border-orange-500 text-slate-700 dark:text-zinc-300 text-left font-mono transition-colors"
                   >
                     <span className="block font-bold text-emerald-500">Employee</span>
