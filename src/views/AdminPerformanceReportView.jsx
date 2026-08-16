@@ -148,7 +148,7 @@ export const AdminPerformanceReportView = () => {
   };
 
   const uniqueStaff = useMemo(() => {
-    const staffSet = new Set(['basith', 'aslam', 'Harivasan']);
+    const staffSet = new Set();
     tasks.forEach((t) => {
       if (t.cameraman && t.cameraman !== 'Unassigned') staffSet.add(t.cameraman);
       if (t.editor && t.editor !== 'Unassigned') staffSet.add(t.editor);
@@ -216,7 +216,7 @@ export const AdminPerformanceReportView = () => {
       }
     });
 
-    const avgTurnaround = turnaroundCount > 0 ? (totalDays / turnaroundCount).toFixed(1) : '2.2';
+    const avgTurnaround = turnaroundCount > 0 ? (totalDays / turnaroundCount).toFixed(1) : '--';
 
     const scores = {};
     tasks.forEach((t) => {
@@ -235,7 +235,7 @@ export const AdminPerformanceReportView = () => {
       .sort((a, b) => b[1] - a[1])
       .map(([name, score]) => ({ name, score }));
 
-    const topPerformer = sortedLeaderboard.length > 0 ? sortedLeaderboard[0] : { name: 'basith', score: 4 };
+    const topPerformer = sortedLeaderboard.length > 0 ? sortedLeaderboard[0] : null;
 
     return {
       totalProcessed,
@@ -622,16 +622,18 @@ export const AdminPerformanceReportView = () => {
               <Award className="w-4 h-4" /> Top Performer
             </span>
             <span className="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black uppercase tracking-wider backdrop-blur-md">
-              Leaderboard #1
+              {kpis.topPerformer ? 'Leaderboard #1' : '--'}
             </span>
           </div>
           <div className="mt-3 relative z-10">
             <div className="text-2xl font-black capitalize tracking-tight flex items-center space-x-2">
-              <span>{kpis.topPerformer.name}</span>
-              <Flame className="w-5 h-5 text-amber-200 fill-amber-200" />
+              <span>{kpis.topPerformer ? kpis.topPerformer.name : 'None yet'}</span>
+              {kpis.topPerformer && <Flame className="w-5 h-5 text-amber-200 fill-amber-200" />}
             </div>
             <p className="text-xs text-orange-100 font-medium mt-0.5">
-              Completed {kpis.topPerformer.score} high-priority production tasks
+              {kpis.topPerformer
+                ? `Completed ${kpis.topPerformer.score} high-priority production tasks`
+                : 'No completed production tasks recorded'}
             </p>
           </div>
         </div>
@@ -664,7 +666,9 @@ export const AdminPerformanceReportView = () => {
           </div>
           <div className="mt-3 flex items-baseline space-x-2">
             <span className="text-3xl font-black text-zinc-900 dark:text-white">{kpis.avgTurnaround}</span>
-            <span className="text-xs font-bold text-zinc-500">Days / Project</span>
+            <span className="text-xs font-bold text-zinc-500">
+              {kpis.avgTurnaround === '--' ? 'No data' : 'Days / Project'}
+            </span>
           </div>
         </div>
       </div>

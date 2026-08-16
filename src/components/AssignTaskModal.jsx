@@ -10,9 +10,9 @@ export const AssignTaskModal = ({ isOpen, onClose, onTaskCreated, initialTask = 
   const [formData, setFormData] = useState({
     id: '',
     item_name: '',
-    cameraman: 'basith',
+    cameraman: 'Unassigned',
     shoot_date: new Date().toISOString().split('T')[0],
-    editor: 'aslam',
+    editor: 'Unassigned',
     edit_date: '',
     delivery_date: '',
     upload_date: '',
@@ -27,9 +27,9 @@ export const AssignTaskModal = ({ isOpen, onClose, onTaskCreated, initialTask = 
         setFormData({
           id: initialTask.id || '',
           item_name: initialTask.item_name || '',
-          cameraman: initialTask.cameraman || 'basith',
+          cameraman: initialTask.cameraman || 'Unassigned',
           shoot_date: initialTask.shoot_date || new Date().toISOString().split('T')[0],
-          editor: initialTask.editor || 'aslam',
+          editor: initialTask.editor || 'Unassigned',
           edit_date: initialTask.edit_date || '',
           delivery_date: initialTask.delivery_date || '',
           upload_date: initialTask.upload_date || '',
@@ -40,9 +40,9 @@ export const AssignTaskModal = ({ isOpen, onClose, onTaskCreated, initialTask = 
         setFormData({
           id: '',
           item_name: '',
-          cameraman: 'basith',
+          cameraman: 'Unassigned',
           shoot_date: new Date().toISOString().split('T')[0],
-          editor: 'aslam',
+          editor: 'Unassigned',
           edit_date: '',
           delivery_date: '',
           upload_date: '',
@@ -94,11 +94,9 @@ export const AssignTaskModal = ({ isOpen, onClose, onTaskCreated, initialTask = 
     }
   };
 
-  // Fallback employee list if API returns empty
-  const defaultStaffList = ['basith', 'aslam', 'Harivasan'];
   const staffOptions = employees.length > 0
-    ? Array.from(new Set([...employees.map(e => e.full_name || e.email), ...defaultStaffList]))
-    : defaultStaffList;
+    ? Array.from(new Set(employees.map(e => e.full_name || e.email)))
+    : ['Unassigned'];
 
   return (
     <div 
