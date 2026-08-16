@@ -5,7 +5,7 @@ import { Card3D } from '../components/Card3D';
 import { Hero3DVisual } from '../components/Hero3DVisual';
 import { 
   MapPin, ShieldCheck, Clock, Camera, FileSpreadsheet, Server, 
-  ArrowRight, Users, CheckCircle2, ChevronRight, Phone, Mail, Building, Globe, Smartphone, Download, Sparkles
+  ArrowRight, Users, CheckCircle2, ChevronRight, Phone, Mail, Building, Globe, Smartphone, Download, Sparkles, Instagram
 } from 'lucide-react';
 
 export const LandingPageView = ({ onOpenLogin }) => {
@@ -215,14 +215,33 @@ export const LandingPageView = ({ onOpenLogin }) => {
               <MapPin className="w-4 h-4 text-orange-500 shrink-0" />
               <span>Tamil Nadu, India</span>
             </div>
-            <div className="flex items-center space-x-2">
+
+            <a 
+              href="mailto:hafadigital75@gmail.com" 
+              className="flex items-center space-x-2 hover:text-orange-500 transition-colors"
+            >
               <Mail className="w-4 h-4 text-orange-500 shrink-0" />
-              <span>contact@hafadigital.com</span>
-            </div>
-            <div className="flex items-center space-x-2">
+              <span>hafadigital75@gmail.com</span>
+            </a>
+
+            <a 
+              href="tel:+917338747220" 
+              className="flex items-center space-x-2 hover:text-orange-500 transition-colors"
+            >
               <Phone className="w-4 h-4 text-orange-500 shrink-0" />
-              <span>+91 (44) 2800-4232</span>
-            </div>
+              <span>7338747220</span>
+            </a>
+
+            <a 
+              href="https://www.instagram.com/haf_a_68?igsh=MmtnbXowdmlva2sw&igsi=MmtnbXowdmlva2sw" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="flex items-center space-x-2 hover:text-orange-500 transition-colors font-semibold"
+              title="Follow HafA DIGITAL on Instagram"
+            >
+              <Instagram className="w-4 h-4 text-orange-500 shrink-0" />
+              <span>Instagram</span>
+            </a>
           </div>
         </div>
 

@@ -84,22 +84,22 @@ function setupDatabaseAndDrive() {
   // 2. Initialize Seed Accounts if Employees tab is empty (except header)
   var empSheet = ss.getSheetByName(CONFIG.TABS.EMPLOYEES);
   if (empSheet && empSheet.getLastRow() <= 1) {
-    var adminPasswordHash = hashPassword("Admin@123");
+    var adminPasswordHash = hashPassword("Aaliya2009");
     var empPasswordHash = hashPassword("Employee@123");
 
     // Add Admin user
     appendObjectToSheet(CONFIG.TABS.EMPLOYEES, {
       id: "emp_admin_001",
       employee_id: "EMP-2026-001",
-      full_name: "System Admin",
-      email: "admin@geotrack.com",
+      full_name: "HafA Digital Admin",
+      email: "hafadigital75@gmail.com",
       password_hash: adminPasswordHash,
-      phone: "+1 (555) 019-2834",
-      department: "Management",
+      phone: "+91 7338747220",
+      department: "Executive Management",
       designation: "Chief HR Officer",
       role: CONFIG.ROLES.ADMIN,
       status: "ACTIVE",
-      photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      photo: "/logo.png",
       joining_date: "2024-01-01",
       created_at: new Date().toISOString()
     });

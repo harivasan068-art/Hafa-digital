@@ -172,7 +172,7 @@ export const LoginView = ({ onBack }) => {
                   <input
                     type="email"
                     required
-                    placeholder="admin@geotrack.com or harivasan@geotrack.com"
+                    placeholder="hafadigital75@gmail.com or harivasan@geotrack.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
@@ -213,11 +213,11 @@ export const LoginView = ({ onBack }) => {
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => { setEmail('admin@geotrack.com'); setPassword('Admin@123'); }}
+                    onClick={() => { setEmail('hafadigital75@gmail.com'); setPassword('Aaliya2009'); }}
                     className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 hover:border-orange-500 text-slate-700 dark:text-zinc-300 text-left font-mono transition-colors"
                   >
                     <span className="block font-bold text-orange-500">Admin</span>
-                    admin@geotrack.com
+                    hafadigital75@gmail.com
                   </button>
                   <button
                     type="button"

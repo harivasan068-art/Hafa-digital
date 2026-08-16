@@ -68,8 +68,8 @@ GeoTrack HRMS is a production-grade, zero-infrastructure cost Human Resource Man
 ## 👤 Default Seed Credentials
 
 - **Admin Account**:
-  - Email: `admin@geotrack.com`
-  - Password: `Admin@123`
+  - Email: `hafadigital75@gmail.com`
+  - Password: `Aaliya2009`
 - **Employee Account**:
   - Email: `john.doe@geotrack.com`
   - Password: `Employee@123`

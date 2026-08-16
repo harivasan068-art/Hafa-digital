@@ -280,7 +280,7 @@ export const AdminProfileView = () => {
             <div className="flex items-center justify-center sm:justify-start space-x-3 mt-1 text-xs text-slate-400 font-medium">
               <span className="font-mono text-purple-400 font-bold">{user?.employee_id || 'ADM-2026-001'}</span>
               <span>•</span>
-              <span>{user?.email || 'admin@hafa.com'}</span>
+              <span>{user?.email || 'hafadigital75@gmail.com'}</span>
               <span>•</span>
               <span className="text-emerald-400 font-bold flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" /> Full Access Enabled
