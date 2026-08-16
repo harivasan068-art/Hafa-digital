@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
-  LayoutDashboard, Clock, History, User, ShieldCheck, 
+  LayoutDashboard, Clock, Calendar, User, ShieldCheck, 
   Users, Settings, MapPin, LogOut, FileSpreadsheet, Compass, TrendingUp, X
 } from 'lucide-react';
 
@@ -28,10 +28,10 @@ export const Sidebar = ({ activeTab, setActiveTab, mobileOpen, onCloseMobile }) 
       description: 'Personal Tasks & Metrics'
     },
     {
-      id: 'history',
-      label: 'Submitted Field Logs',
-      icon: History,
-      description: 'Past Shift Logs'
+      id: 'timesheet',
+      label: 'Monthly Timesheet',
+      icon: Calendar,
+      description: 'Attendance Summary & Logs'
     },
     {
       id: 'employee-profile',

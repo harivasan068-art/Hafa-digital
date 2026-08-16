@@ -10,6 +10,7 @@ import { CommonDashboardView } from './views/CommonDashboardView';
 import { EmployeeAttendanceView } from './views/EmployeeAttendanceView';
 import { EmployeeProfileView } from './views/EmployeeProfileView';
 import { EmployeePerformanceView } from './views/EmployeePerformanceView';
+import { EmployeeTimesheetView } from './components/EmployeeTimesheetView';
 import { AdminDashboardView } from './views/AdminDashboardView';
 import { AdminPerformanceReportView } from './views/AdminPerformanceReportView';
 import { AdminGeotagVerificationView } from './views/AdminGeotagVerificationView';
@@ -37,8 +38,10 @@ const MainLayout = () => {
     switch (activeTab) {
       case 'dashboard':
         return <CommonDashboardView onNavigate={(tab) => setActiveTab(tab)} />;
-      case 'attendance':
+      case 'timesheet':
       case 'history':
+        return <EmployeeTimesheetView employeeId={user?.employee_id} />;
+      case 'attendance':
       case 'checkin':
         return <EmployeeAttendanceView />;
       case 'employee-performance':

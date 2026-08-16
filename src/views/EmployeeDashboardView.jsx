@@ -133,14 +133,14 @@ export const EmployeeDashboardView = ({ onNavigate }) => {
         </div>
 
         <div 
-          onClick={() => onNavigate && onNavigate('history')}
+          onClick={() => onNavigate && onNavigate('timesheet')}
           className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-orange-500 shadow-sm hover:shadow-md transition-all cursor-pointer group"
         >
           <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
             <Calendar className="w-5 h-5 text-orange-500" />
           </div>
-          <h3 className="font-bold text-slate-900 text-sm">View Attendance Logs</h3>
-          <p className="text-xs text-slate-500 mt-1">Audit past check-ins, timestamps, and approval statuses.</p>
+          <h3 className="font-bold text-slate-900 text-sm">Monthly Timesheet</h3>
+          <p className="text-xs text-slate-500 mt-1">View monthly attendance summary, duty hours, and geofence logs.</p>
         </div>
       </div>
 
