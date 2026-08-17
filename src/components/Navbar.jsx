@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getGasUrl, setGasUrl } from '../services/api';
 import { ThemeToggle } from './ThemeToggle';
+import { UserAvatar } from './UserAvatar';
 import { Shield, LogOut, Settings, Server, CheckCircle2, User, ChevronDown, Menu } from 'lucide-react';
 
 export const Navbar = ({ onOpenSettings, onToggleMobileMenu }) => {
@@ -80,12 +81,7 @@ export const Navbar = ({ onOpenSettings, onToggleMobileMenu }) => {
           {/* User Profile Badge */}
           {user && (
             <div className="flex items-center space-x-2 sm:space-x-3 pl-1.5 sm:pl-2 border-l border-slate-200 dark:border-zinc-800">
-              <img
-                src={user.photo && !user.photo.includes('unsplash') ? user.photo : "/logo.png"}
-                alt={user.full_name}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-slate-300 dark:border-zinc-700 shadow-sm"
-                onError={(e) => { e.target.onerror = null; e.target.src = '/logo.png'; }}
-              />
+              <UserAvatar user={user} size="sm" />
               <div className="hidden lg:block text-left">
                 <div className="flex items-center space-x-1.5">
                   <span className="font-semibold text-xs text-slate-900 dark:text-white">{user.full_name}</span>

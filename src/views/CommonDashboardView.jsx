@@ -2,25 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { apiCall, getGasUrl, setGasUrl } from '../services/api';
+import { UserAvatar, resolveAvatarUrl } from '../components/UserAvatar';
 import { 
   User, ShieldCheck, Clock, MapPin, CheckCircle2, AlertTriangle, 
   ArrowRight, Radio, ExternalLink, Settings, Save, Lock, Phone, Mail, 
   Building, Bell, RefreshCw, X, Camera, FileSpreadsheet, Users, Check, Shield, Upload
 } from 'lucide-react';
-
-/**
- * Normalizes image URLs for Google Drive or Base64 avatar display
- */
-const resolveAvatarUrl = (url) => {
-  if (!url || typeof url !== 'string') return '';
-  const trimmed = url.trim();
-  if (trimmed.startsWith('data:image/')) return trimmed;
-  if (trimmed.includes('drive.google.com') || trimmed.includes('googleusercontent.com')) {
-    const match = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/) || trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-    if (match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
-  }
-  return trimmed;
-};
 
 export const CommonDashboardView = ({ onNavigate }) => {
   const { user, isAdmin, updateUser } = useAuth();
@@ -336,18 +323,7 @@ export const CommonDashboardView = ({ onNavigate }) => {
           {/* User Avatar + Identity Info */}
           <div className="flex items-center space-x-4 md:space-x-6">
             <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              {user?.photo ? (
-                <img 
-                  src={resolveAvatarUrl(user.photo)} 
-                  alt={user.full_name} 
-                  className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover border-2 border-orange-500/50 shadow-xl group-hover:opacity-80 transition-opacity"
-                  onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100?text=User'; }}
-                />
-              ) : (
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center font-black text-3xl text-white shadow-xl">
-                  {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
-                </div>
-              )}
+              <UserAvatar user={user} size="xl" className="border-2 border-orange-500/50 shadow-xl group-hover:opacity-80 transition-opacity" />
 
               {/* Camera Hover Overlay Badge */}
               <div 

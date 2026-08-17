@@ -1,21 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiCall } from '../services/api';
+import { UserAvatar, resolveAvatarUrl } from '../components/UserAvatar';
 import { 
   User, Camera, Upload, Settings, Save, Phone, Mail, 
   Building, CheckCircle2, Shield, RefreshCw, X, Check, Lock, MapPin
 } from 'lucide-react';
-
-const resolveAvatarUrl = (url) => {
-  if (!url || typeof url !== 'string') return '';
-  const trimmed = url.trim();
-  if (trimmed.startsWith('data:image/')) return trimmed;
-  if (trimmed.includes('drive.google.com') || trimmed.includes('googleusercontent.com')) {
-    const match = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/) || trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-    if (match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
-  }
-  return trimmed;
-};
 
 export const EmployeeProfileView = () => {
   const { user, updateUser, isAdmin } = useAuth();
@@ -214,20 +204,7 @@ export const EmployeeProfileView = () => {
           
           {/* Avatar Picture */}
           <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            {user?.photo && !user.photo.includes('unsplash') ? (
-              <img 
-                src={resolveAvatarUrl(user.photo)} 
-                alt={user.full_name} 
-                className="w-24 h-24 md:w-28 md:h-28 rounded-3xl object-cover border-2 border-orange-500/50 shadow-2xl group-hover:opacity-80 transition-opacity"
-                onError={(e) => { e.target.onerror = null; e.target.src = '/logo.png'; }}
-              />
-            ) : (
-              <img 
-                src="/logo.png" 
-                alt={user?.full_name || 'User'} 
-                className="w-24 h-24 md:w-28 md:h-28 rounded-3xl object-contain bg-slate-800 p-2 border-2 border-orange-500/50 shadow-2xl group-hover:opacity-80 transition-opacity"
-              />
-            )}
+            <UserAvatar user={user} size="xl" className="w-24 h-24 md:w-28 md:h-28 rounded-3xl border-2 border-orange-500/50 shadow-2xl group-hover:opacity-80 transition-opacity" />
 
             <div className="absolute inset-0 rounded-3xl bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
               <Camera className="w-8 h-8 text-white" />

@@ -8,7 +8,7 @@ export const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 export const SESSION_EXPIRY_KEY = 'geotrack_session_expiry';
 
 /**
- * Checks if saved session is unexpired
+ * Checks if saved session is unexpired and resolves user profile photo
  */
 const getValidSavedUser = () => {
   try {
@@ -28,12 +28,15 @@ const getValidSavedUser = () => {
       }
     }
     const parsed = JSON.parse(savedUser);
-    const savedAvatar = localStorage.getItem('hafa_admin_avatar');
+    const avatarKey = `hafa_avatar_${parsed.email || parsed.id || 'user'}`;
+    const savedAvatar = localStorage.getItem(avatarKey) || localStorage.getItem('hafa_admin_avatar');
+    
     if (savedAvatar) {
       parsed.photo = savedAvatar;
-    } else if (!parsed.photo || parsed.photo.includes('unsplash')) {
-      parsed.photo = '/logo.png';
+    } else if (parsed.photo === '/logo.png') {
+      parsed.photo = null;
     }
+
     return parsed;
   } catch (err) {
     return null;
@@ -78,7 +81,7 @@ export const AuthProvider = ({ children }) => {
 
       // 1. Direct Admin Credential Validation (hafadigital75@gmail.com / Aaliya2009)
       if (cleanEmail === 'hafadigital75@gmail.com' && cleanPassword === 'Aaliya2009') {
-        const savedAvatar = localStorage.getItem('hafa_admin_avatar');
+        const savedAvatar = localStorage.getItem('hafa_avatar_hafadigital75@gmail.com') || localStorage.getItem('hafa_admin_avatar');
         userObj = {
           id: 'emp_admin_001',
           employee_id: 'EMP-2026-001',
@@ -89,17 +92,18 @@ export const AuthProvider = ({ children }) => {
           department: 'Executive Management',
           designation: 'Chief HR Officer',
           status: 'ACTIVE',
-          photo: savedAvatar || '/logo.png'
+          photo: savedAvatar || null
         };
       }
       // 2. Dynamic Backend / Google Apps Script Authentication for All Registered Accounts
       else {
         const res = await apiCall('login', { email: cleanEmail, password: cleanPassword });
         if (res.success && res.user) {
-          const savedAvatar = localStorage.getItem('hafa_admin_avatar');
+          const avatarKey = `hafa_avatar_${res.user.email || res.user.id || 'user'}`;
+          const savedAvatar = localStorage.getItem(avatarKey);
           userObj = {
             ...res.user,
-            photo: savedAvatar || (res.user.photo && !res.user.photo.includes('unsplash') ? res.user.photo : '/logo.png')
+            photo: savedAvatar || (res.user.photo && res.user.photo !== '/logo.png' && !res.user.photo.includes('unsplash') ? res.user.photo : null)
           };
         } else {
           const errMsg = res.message || 'Invalid email or password.';
@@ -166,10 +170,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (updatedFields) => {
-    if (updatedFields.photo) {
-      localStorage.setItem('hafa_admin_avatar', updatedFields.photo);
-    }
     const updated = { ...user, ...updatedFields };
+    if (updated.photo) {
+      const avatarKey = `hafa_avatar_${updated.email || updated.id || 'user'}`;
+      localStorage.setItem(avatarKey, updated.photo);
+      localStorage.setItem('hafa_admin_avatar', updated.photo);
+    }
     setUser(updated);
     localStorage.setItem('geotrack_user', JSON.stringify(updated));
   };
