@@ -22,8 +22,9 @@ function setupDatabaseAndDrive() {
       "photo", "joining_date", "created_at"
     ],
     Attendance: [
-      "id", "employee_id", "check_in", "check_out", "latitude", 
-      "longitude", "location_name", "address", "photo_url", "status", 
+      "id", "employee_id", "check_in", "check_out", 
+      "shop_name", "product_model", "camera_man", "editor", 
+      "location_name", "address", "photo_url", "status", 
       "is_inside_geofence", "remarks", "approved_by", "date"
     ],
     CompanySettings: [

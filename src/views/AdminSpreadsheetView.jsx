@@ -70,7 +70,7 @@ export const AdminSpreadsheetView = () => {
     return (
       (r.shop_name || r.location_name || '').toLowerCase().includes(q) ||
       (r.product_model || r.remarks || '').toLowerCase().includes(q) ||
-      (r.cameraman || r.employee_name || '').toLowerCase().includes(q) ||
+      (r.camera_man || r.cameraman || r.employee_name || '').toLowerCase().includes(q) ||
       (r.editor || '').toLowerCase().includes(q)
     );
   });
@@ -100,7 +100,7 @@ export const AdminSpreadsheetView = () => {
     const rows = dataset.map(r => {
       const shop = r.shop_name || r.client_name || r.location_name || 'HafA Client';
       const model = r.product_model || r.shoot_item || r.remarks || 'Production Item';
-      const cam = r.cameraman || r.employee_name || 'Basith';
+      const cam = r.camera_man || r.cameraman || r.employee_name || 'Basith';
       const shootDt = r.shoot_date || r.date || new Date().toISOString().split('T')[0];
       const ed = r.editor || 'Basith';
       const editDt = r.edit_date || '';

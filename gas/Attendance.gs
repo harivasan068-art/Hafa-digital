@@ -7,9 +7,81 @@
  */
 
 /**
+ * Ensures Row 1 headers in the "Attendance" sheet tab match the exact required column schema:
+ * [
+ *   "id", "employee_id", "check_in", "check_out", 
+ *   "shop_name", "product_model", "camera_man", "editor", 
+ *   "location_name", "address", "photo_url", "status", 
+ *   "is_inside_geofence", "remarks", "approved_by", "date"
+ * ]
+ * 
+ * Removes legacy 'latitude' and 'longitude' standalone columns.
+ * 
+ * @return {Sheet} The initialized Attendance sheet
+ */
+function ensureAttendanceSheetHeaders() {
+  var ss = getSpreadsheet();
+  var sheet = ss.getSheetByName(CONFIG.TABS.ATTENDANCE);
+  if (!sheet) {
+    sheet = ss.insertSheet(CONFIG.TABS.ATTENDANCE);
+  }
+
+  var expectedHeaders = [
+    "id",
+    "employee_id",
+    "check_in",
+    "check_out",
+    "shop_name",
+    "product_model",
+    "camera_man",
+    "editor",
+    "location_name",
+    "address",
+    "photo_url",
+    "status",
+    "is_inside_geofence",
+    "remarks",
+    "approved_by",
+    "date"
+  ];
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn();
+
+  if (lastRow === 0 || lastCol === 0) {
+    sheet.getRange(1, 1, 1, expectedHeaders.length).setValues([expectedHeaders]);
+    sheet.getRange(1, 1, 1, expectedHeaders.length).setFontWeight("bold").setBackground("#EEF2FF");
+    sheet.setFrozenRows(1);
+    return sheet;
+  }
+
+  var currentHeaders = sheet.getRange(1, 1, 1, Math.max(lastCol, expectedHeaders.length)).getValues()[0];
+  var matches = true;
+
+  if (currentHeaders.length < expectedHeaders.length) {
+    matches = false;
+  } else {
+    for (var i = 0; i < expectedHeaders.length; i++) {
+      if (String(currentHeaders[i]).trim() !== expectedHeaders[i]) {
+        matches = false;
+        break;
+      }
+    }
+  }
+
+  if (!matches) {
+    sheet.getRange(1, 1, 1, expectedHeaders.length).setValues([expectedHeaders]);
+    sheet.getRange(1, 1, 1, expectedHeaders.length).setFontWeight("bold").setBackground("#EEF2FF");
+    sheet.setFrozenRows(1);
+  }
+
+  return sheet;
+}
+
+/**
  * Handles employee field site check-in / location & proof submission
  * 
- * @param {Object} data Site submission payload { employee_id, latitude, longitude, photo_base64, selfie_image, proof_base64, proof_image, proof_photo, remarks, location_name, address }
+ * @param {Object} data Site submission payload { employee_id, latitude, longitude, photo_base64, selfie_image, proof_base64, proof_image, proof_photo, shop_name, product_model, camera_man, editor, remarks, location_name, address }
  * @return {Object} Response object with status, distance, and created record
  */
 function handleClockIn(data) {
@@ -17,13 +89,12 @@ function handleClockIn(data) {
     return { success: false, message: "Missing employee ID." };
   }
 
+  // Ensure Attendance sheet headers match the new 16-column schema
+  ensureAttendanceSheetHeaders();
+
   var empId = String(data.employee_id);
   var userLat = parseFloat(data.latitude);
   var userLng = parseFloat(data.longitude);
-
-  if (isNaN(userLat) || isNaN(userLng)) {
-    return { success: false, message: "Invalid or missing GPS location coordinates." };
-  }
 
   // Retrieve company office geofence settings
   var settingsList = sheetToObjects(CONFIG.TABS.COMPANY_SETTINGS);
@@ -33,9 +104,13 @@ function handleClockIn(data) {
   var officeLng = parseFloat(companySettings.office_longitude || CONFIG.DEFAULT_OFFICE.LONGITUDE);
   var geofenceRadius = parseFloat(companySettings.geofence_radius_meters || CONFIG.DEFAULT_OFFICE.GEOFENCE_RADIUS_METERS);
 
-  // Compute Haversine distance in meters
-  var distanceMeters = calculateDistanceMeters(userLat, userLng, officeLat, officeLng);
-  var isInsideGeofence = distanceMeters <= geofenceRadius;
+  // Compute Haversine distance in meters if GPS coordinates provided
+  var distanceMeters = Infinity;
+  var isInsideGeofence = false;
+  if (!isNaN(userLat) && !isNaN(userLng)) {
+    distanceMeters = calculateDistanceMeters(userLat, userLng, officeLat, officeLng);
+    isInsideGeofence = distanceMeters <= geofenceRadius;
+  }
 
   // Determine status: "Present" if within geofence, "Pending" if outside for admin review
   var attendanceStatus = isInsideGeofence ? CONFIG.ATTENDANCE_STATUS.PRESENT : CONFIG.ATTENDANCE_STATUS.PENDING;
@@ -75,22 +150,21 @@ function handleClockIn(data) {
     notes += " | Work Proof Attached: " + proofUrl;
   }
 
-  // Construct attendance record
+  var addressStr = data.address || (!isNaN(userLat) && !isNaN(userLng) ? ("Lat: " + userLat.toFixed(6) + ", Lng: " + userLng.toFixed(6)) : "");
+
+  // Construct attendance record matching NEW schema (latitude/longitude removed as standalone columns)
   var newRecord = {
     id: generateUUID(),
     employee_id: empId,
     check_in: nowIso,
     check_out: "",
-    latitude: userLat,
-    longitude: userLng,
-    location_name: data.location_name || (isInsideGeofence ? "Main Office HQ" : "Field Site Location"),
-    address: data.address || ("Lat: " + userLat.toFixed(6) + ", Lng: " + userLng.toFixed(6)),
-    photo_url: photoUrl,
-    proof_url: proofUrl,
     shop_name: data.shop_name || data.client_name || "",
     product_model: data.product_model || data.shoot_item || "",
-    cameraman: data.cameraman || "",
+    camera_man: data.camera_man || data.cameraman || "",
     editor: data.editor || "",
+    location_name: data.location_name || (isInsideGeofence ? "Main Office HQ" : "Field Site Location"),
+    address: addressStr,
+    photo_url: photoUrl,
     status: attendanceStatus,
     is_inside_geofence: isInsideGeofence ? "TRUE" : "FALSE",
     remarks: notes,
@@ -120,7 +194,11 @@ function handleClockIn(data) {
     status: attendanceStatus,
     distance_meters: distanceMeters,
     photo_url: photoUrl,
-    proof_url: proofUrl
+    proof_url: proofUrl,
+    shop_name: newRecord.shop_name,
+    product_model: newRecord.product_model,
+    camera_man: newRecord.camera_man,
+    editor: newRecord.editor
   });
 
   return {
@@ -139,13 +217,15 @@ function handleClockIn(data) {
 /**
  * Handles explicit Work Proof upload and links it to today's attendance record
  * 
- * @param {Object} data Work proof payload { employee_id, proof_image, proof_photo, proof_base64, remarks, description, latitude, longitude }
+ * @param {Object} data Work proof payload { employee_id, proof_image, proof_photo, proof_base64, shop_name, product_model, camera_man, editor, remarks, description, latitude, longitude }
  * @return {Object} Response formatted JSON payload with proof_url and updated record
  */
 function handleSubmitWorkProof(data) {
   if (!data || !data.employee_id) {
     return { success: false, message: "Missing employee ID." };
   }
+
+  ensureAttendanceSheetHeaders();
 
   var empId = String(data.employee_id);
   var proofData = data.proof_image || data.proof_photo || data.proof_base64 || "";
@@ -181,6 +261,10 @@ function handleSubmitWorkProof(data) {
     var updatedRemarks = activeRecord.remarks ? (activeRecord.remarks + " | Work Proof: " + remarksText) : remarksText;
     updateObjectInSheet(CONFIG.TABS.ATTENDANCE, "id", activeRecord.id, {
       proof_url: proofUrl,
+      shop_name: data.shop_name || activeRecord.shop_name || "",
+      product_model: data.product_model || activeRecord.product_model || "",
+      camera_man: data.camera_man || data.cameraman || activeRecord.camera_man || "",
+      editor: data.editor || activeRecord.editor || "",
       remarks: updatedRemarks
     });
     activeRecord.proof_url = proofUrl;
@@ -192,12 +276,13 @@ function handleSubmitWorkProof(data) {
       employee_id: empId,
       check_in: nowIso,
       check_out: "",
-      latitude: parseFloat(data.latitude || 13.0853),
-      longitude: parseFloat(data.longitude || 80.0179),
+      shop_name: data.shop_name || data.client_name || "",
+      product_model: data.product_model || data.shoot_item || "",
+      camera_man: data.camera_man || data.cameraman || "",
+      editor: data.editor || "",
       location_name: "Field Site Work Proof",
-      address: "Lat: " + (data.latitude || 13.0853) + ", Lng: " + (data.longitude || 80.0179),
+      address: data.address || "Lat: " + (data.latitude || 13.0853) + ", Lng: " + (data.longitude || 80.0179),
       photo_url: data.photo_url || "",
-      proof_url: proofUrl,
       status: CONFIG.ATTENDANCE_STATUS.PENDING,
       is_inside_geofence: "FALSE",
       remarks: remarksText,
@@ -274,8 +359,6 @@ function handleUpdateLocation(data) {
   if (activeRecord) {
     var updatedRemarks = activeRecord.remarks ? (activeRecord.remarks + " | " + locationNote) : locationNote;
     var updateData = {
-      latitude: userLat,
-      longitude: userLng,
       address: "Lat: " + userLat.toFixed(6) + ", Lng: " + userLng.toFixed(6),
       is_inside_geofence: isInsideGeofence ? "TRUE" : "FALSE",
       remarks: updatedRemarks
@@ -340,6 +423,8 @@ function handleClockOut(data) {
  * Fetches attendance records with optional filtering
  */
 function getAttendanceRecords(filters) {
+  ensureAttendanceSheetHeaders();
+
   filters = filters || {};
   var records = sheetToObjects(CONFIG.TABS.ATTENDANCE);
   var employees = sheetToObjects(CONFIG.TABS.EMPLOYEES);
@@ -367,21 +452,19 @@ function getAttendanceRecords(filters) {
       department: emp.department || "N/A",
       check_in: rec.check_in,
       check_out: rec.check_out,
-      latitude: rec.latitude,
-      longitude: rec.longitude,
-      location_name: rec.location_name,
-      address: rec.address,
-      photo_url: rec.photo_url,
-      proof_url: proofUrl,
       shop_name: rec.shop_name || "",
       product_model: rec.product_model || "",
-      cameraman: rec.cameraman || "",
+      camera_man: rec.camera_man || rec.cameraman || "",
       editor: rec.editor || "",
-      status: rec.status,
+      location_name: rec.location_name || "",
+      address: rec.address || "",
+      photo_url: rec.photo_url || "",
+      proof_url: proofUrl,
+      status: rec.status || "",
       is_inside_geofence: String(rec.is_inside_geofence).toUpperCase() === "TRUE",
-      remarks: rec.remarks,
-      approved_by: rec.approved_by,
-      date: rec.date
+      remarks: rec.remarks || "",
+      approved_by: rec.approved_by || "",
+      date: rec.date || ""
     };
   });
 
@@ -434,7 +517,7 @@ function verifyAttendanceRecord(recordId, status, approverEmail) {
 }
 
 /**
- * Batch sync endpoint to process multiple queued offline submissions in a single execution (Module 5)
+ * Batch sync endpoint to process multiple queued offline submissions in a single execution
  * 
  * @param {Object} data - Payload containing { records } array or array of payloads
  * @return {Object} Response object with array of processed results
@@ -483,4 +566,3 @@ function handleBatchAttendanceSync(data) {
     results: results
   };
 }
-

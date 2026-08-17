@@ -266,6 +266,7 @@ export const EmployeeAttendanceView = () => {
       client_name: shopName,
       product_model: productModel,
       shoot_item: productModel,
+      camera_man: cameraman,
       cameraman: cameraman,
       editor: editor,
       remarks: siteRemarks || `Field Site Dispatch (${shopName || 'Client Site'} - ${productModel || 'Production'})`,
@@ -305,6 +306,7 @@ export const EmployeeAttendanceView = () => {
           proof_base64: proofBase64,
           shop_name: shopName,
           product_model: productModel,
+          camera_man: cameraman,
           cameraman: cameraman,
           editor: editor,
           remarks: siteRemarks || "Work proof attached"
@@ -321,6 +323,7 @@ export const EmployeeAttendanceView = () => {
           item_name: productModel ? `${shopName ? shopName + ' - ' : ''}${productModel}` : shopName,
           shop_name: shopName,
           product_model: productModel,
+          camera_man: cameraman || user.full_name || 'Basith',
           cameraman: cameraman || user.full_name || 'Basith',
           editor: editor || 'Basith',
           shoot_date: new Date().toISOString().split('T')[0],
