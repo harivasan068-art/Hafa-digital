@@ -60,7 +60,7 @@ export const EmployeeTimesheetView = ({ employeeId }) => {
   }, [attendanceRecords]);
 
   const totalWorkingDays = useMemo(() => {
-    return Math.max(attendanceRecords.length, 22);
+    return Math.max(attendanceRecords.length, 28);
   }, [attendanceRecords]);
 
   const totalHoursLogged = useMemo(() => {
