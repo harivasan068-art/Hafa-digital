@@ -3,9 +3,11 @@ import { useAuth } from '../context/AuthContext';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { MobileInstallShortcut } from '../components/MobileInstallShortcut';
 import { BackgroundWatermark } from '../components/BackgroundWatermark';
+import { auth, sendPasswordResetEmail } from '../services/firebase';
 import { 
   ShieldCheck, MapPin, Mail, Lock, User, Phone, Briefcase, 
-  ArrowRight, ArrowLeft, CheckCircle2, AlertCircle, Sparkles 
+  ArrowRight, ArrowLeft, CheckCircle2, AlertCircle, Sparkles,
+  Eye, EyeOff, X, KeyRound
 } from 'lucide-react';
 
 export const LoginView = ({ onBack }) => {
@@ -15,6 +17,7 @@ export const LoginView = ({ onBack }) => {
   // Login Form State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Self-Registration Form State
   const [regFullName, setRegFullName] = useState('');
@@ -22,6 +25,13 @@ export const LoginView = ({ onBack }) => {
   const [regPhone, setRegPhone] = useState('');
   const [regDepartment, setRegDepartment] = useState('Field Operations');
   const [regPassword, setRegPassword] = useState('');
+  const [showRegPassword, setShowRegPassword] = useState(false);
+
+  // Forgot Password Modal State
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetStatus, setResetStatus] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -70,6 +80,38 @@ export const LoginView = ({ onBack }) => {
       setErrorMsg(res.message || 'Registration failed.');
     }
     setLoading(false);
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (!resetEmail || !resetEmail.trim()) {
+      setResetStatus({ type: 'error', message: 'Please enter a valid email address.' });
+      return;
+    }
+
+    setResetLoading(true);
+    setResetStatus(null);
+
+    try {
+      await sendPasswordResetEmail(auth, resetEmail.trim().toLowerCase());
+      setResetStatus({
+        type: 'success',
+        message: 'Password reset email sent! Check your inbox.'
+      });
+    } catch (err) {
+      console.error('Password reset error:', err);
+      let friendlyError = 'Failed to send reset email. Please check your credentials and try again.';
+      if (err.code === 'auth/user-not-found') {
+        friendlyError = 'No account found with this email address.';
+      } else if (err.code === 'auth/invalid-email') {
+        friendlyError = 'Invalid email address format.';
+      } else if (err.message) {
+        friendlyError = err.message;
+      }
+      setResetStatus({ type: 'error', message: friendlyError });
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   return (
@@ -181,19 +223,41 @@ export const LoginView = ({ onBack }) => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1">
-                  Password
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider">
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForgotModal(true);
+                      setResetEmail(email || '');
+                      setResetStatus(null);
+                    }}
+                    className="text-xs font-bold text-orange-500 hover:text-orange-600 dark:hover:text-orange-400 transition-colors focus:outline-none cursor-pointer"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-400 dark:text-zinc-500 absolute left-3.5 top-3" />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                    className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2.5 p-1 text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 transition-colors cursor-pointer"
+                    title={showPassword ? "Hide password" : "Show password"}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
@@ -285,13 +349,22 @@ export const LoginView = ({ onBack }) => {
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-400 dark:text-zinc-500 absolute left-3.5 top-3" />
                   <input
-                    type="password"
+                    type={showRegPassword ? "text" : "password"}
                     required
                     placeholder="••••••••"
                     value={regPassword}
                     onChange={(e) => setRegPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                    className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegPassword(!showRegPassword)}
+                    className="absolute right-3 top-2.5 p-1 text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 transition-colors cursor-pointer"
+                    title={showRegPassword ? "Hide password" : "Show password"}
+                    aria-label={showRegPassword ? "Hide password" : "Show password"}
+                  >
+                    {showRegPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
@@ -307,6 +380,85 @@ export const LoginView = ({ onBack }) => {
           )}
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-2xl p-6 space-y-5 relative">
+            {/* Modal Close Button */}
+            <button
+              type="button"
+              onClick={() => setShowForgotModal(false)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-full transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header */}
+            <div className="space-y-1">
+              <div className="w-10 h-10 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center mb-3">
+                <KeyRound className="w-5 h-5" />
+              </div>
+              <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Reset Password</h2>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
+                Enter your registered email address and we'll send you instructions to reset your password.
+              </p>
+            </div>
+
+            {/* Status Feedback Messages */}
+            {resetStatus && resetStatus.type === 'error' && (
+              <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center space-x-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+                <span>{resetStatus.message}</span>
+              </div>
+            )}
+
+            {resetStatus && resetStatus.type === 'success' && (
+              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold flex items-center space-x-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
+                <span>{resetStatus.message}</span>
+              </div>
+            )}
+
+            {/* Password Reset Form */}
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 dark:text-zinc-500 absolute left-3.5 top-3" />
+                  <input
+                    type="email"
+                    required
+                    placeholder="hafadigital75@gmail.com"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotModal(false)}
+                  className="w-1/2 py-2.5 rounded-xl font-bold text-xs text-slate-700 dark:text-zinc-300 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={resetLoading}
+                  className="w-1/2 py-2.5 rounded-xl font-bold text-xs text-white bg-orange-500 hover:bg-orange-600 shadow-md shadow-orange-500/20 transition-all disabled:opacity-50 flex items-center justify-center space-x-2 cursor-pointer"
+                >
+                  <span>{resetLoading ? 'Sending...' : 'Send Reset Link'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* MOBILE PWA INSTALL SHORTCUT BUTTON */}
       <MobileInstallShortcut />
