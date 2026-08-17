@@ -8,7 +8,7 @@ import { compressImage } from '../utils/mediaUtils';
 import { saveToOfflineQueue, getOfflineQueue, syncOfflineQueue } from '../services/offlineSync';
 import { 
   MapPin, Camera, CheckCircle2, AlertTriangle, Calendar, RefreshCw, 
-  ArrowUpRight, Upload, ExternalLink, Navigation, Send, Image as ImageIcon, Radio, Check, Eye, User, WifiOff, Zap, Target
+  ArrowUpRight, Upload, ExternalLink, Navigation, Send, Image as ImageIcon, Radio, Check, Eye, User, WifiOff, Zap, Target, Building
 } from 'lucide-react';
 
 /**
@@ -87,6 +87,12 @@ export const EmployeeAttendanceView = () => {
   const [siteRemarks, setSiteRemarks] = useState('');
   const [statusMessage, setStatusMessage] = useState(null);
   const [lastPingTime, setLastPingTime] = useState(null);
+
+  // Shoot & Production Metadata State
+  const [shopName, setShopName] = useState('');
+  const [productModel, setProductModel] = useState('');
+  const [cameraman, setCameraman] = useState('');
+  const [editor, setEditor] = useState('');
 
   // Offline Sync State
   const [offlineQueueCount, setOfflineQueueCount] = useState(getOfflineQueue().length);
@@ -256,9 +262,25 @@ export const EmployeeAttendanceView = () => {
       proof_image: proofBase64,
       proof_photo: proofBase64,
       proof_url: proofBase64,
-      remarks: siteRemarks || "Field Site Dispatch Logged",
-      location_name: isInsideGeofence ? "Main Office HQ" : "On-Field Client Location",
+      shop_name: shopName,
+      client_name: shopName,
+      product_model: productModel,
+      shoot_item: productModel,
+      cameraman: cameraman,
+      editor: editor,
+      remarks: siteRemarks || `Field Site Dispatch (${shopName || 'Client Site'} - ${productModel || 'Production'})`,
+      location_name: shopName || (isInsideGeofence ? "Main Office HQ" : "On-Field Client Location"),
       address: `Lat: ${latVal.toFixed(4)}, Lng: ${lngVal.toFixed(4)}`
+    };
+
+    const resetFormFields = () => {
+      setSelfieBase64('');
+      setProofBase64('');
+      setSiteRemarks('');
+      setShopName('');
+      setProductModel('');
+      setCameraman('');
+      setEditor('');
     };
 
     // Check Offline state or network outage
@@ -268,9 +290,7 @@ export const EmployeeAttendanceView = () => {
         type: 'amber', 
         text: 'Offline: Submission saved locally. Will auto-sync when online.' 
       });
-      setSelfieBase64('');
-      setProofBase64('');
-      setSiteRemarks('');
+      resetFormFields();
       setOfflineQueueCount(getOfflineQueue().length);
       setLoading(false);
       return;
@@ -283,6 +303,10 @@ export const EmployeeAttendanceView = () => {
           employee_id: user.employee_id,
           proof_image: proofBase64,
           proof_base64: proofBase64,
+          shop_name: shopName,
+          product_model: productModel,
+          cameraman: cameraman,
+          editor: editor,
           remarks: siteRemarks || "Work proof attached"
         });
       } catch (err) {
@@ -290,13 +314,29 @@ export const EmployeeAttendanceView = () => {
       }
     }
 
+    // If product model or shop name provided, also sync directly to Production Tasks Pipeline
+    if (productModel || shopName) {
+      try {
+        await apiCall('saveProductionTask', {
+          item_name: productModel ? `${shopName ? shopName + ' - ' : ''}${productModel}` : shopName,
+          shop_name: shopName,
+          product_model: productModel,
+          cameraman: cameraman || user.full_name || 'Basith',
+          editor: editor || 'Basith',
+          shoot_date: new Date().toISOString().split('T')[0],
+          status: 'Shoot Done',
+          remarks: siteRemarks || 'Field Attendance Submission'
+        });
+      } catch (err) {
+        console.warn('saveProductionTask sync handled:', err);
+      }
+    }
+
     const res = await apiCall('clockIn', payload);
 
     if (res.success || res.status === 'success' || !res.error) {
-      setStatusMessage({ type: 'success', text: 'Field site location & image proof submitted successfully to HR!' });
-      setSelfieBase64('');
-      setProofBase64('');
-      setSiteRemarks('');
+      setStatusMessage({ type: 'success', text: 'Field site location, metadata & image proof submitted successfully to HR Master Sheet!' });
+      resetFormFields();
       await loadDispatches(false);
     } else {
       // If error caused by network dropout, save to offline queue
@@ -306,9 +346,7 @@ export const EmployeeAttendanceView = () => {
           type: 'amber', 
           text: 'Offline: Submission saved locally. Will auto-sync when online.' 
         });
-        setSelfieBase64('');
-        setProofBase64('');
-        setSiteRemarks('');
+        resetFormFields();
         setOfflineQueueCount(getOfflineQueue().length);
       } else {
         setStatusMessage({ type: 'error', text: res.message || 'Dispatch submission failed.' });
@@ -590,6 +628,70 @@ export const EmployeeAttendanceView = () => {
                   />
                 </label>
               )}
+            </div>
+          </div>
+
+          {/* Structured Shoot & Production Metadata Grid */}
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-3">
+            <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-zinc-800 pb-2">
+              <Building className="w-4 h-4 text-orange-500" />
+              <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                Shoot & Production Metadata
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-zinc-300 mb-1">
+                  Shop / Client Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. NISHA BURKA"
+                  value={shopName}
+                  onChange={(e) => setShopName(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-zinc-300 mb-1">
+                  Product Model / Shoot Item
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. kannagi kafthan / black aabaya"
+                  value={productModel}
+                  onChange={(e) => setProductModel(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-zinc-300 mb-1">
+                  Camera Man
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. basith / aslam"
+                  value={cameraman}
+                  onChange={(e) => setCameraman(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-zinc-300 mb-1">
+                  Editor
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. basith"
+                  value={editor}
+                  onChange={(e) => setEditor(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                />
+              </div>
             </div>
           </div>
 
