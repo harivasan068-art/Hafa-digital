@@ -650,7 +650,7 @@ export const EmployeeAttendanceView = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. NISHA BURKA"
+                  placeholder="Enter shop / client name..."
                   value={shopName}
                   onChange={(e) => setShopName(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-orange-500 focus:outline-none"
@@ -663,7 +663,7 @@ export const EmployeeAttendanceView = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. kannagi kafthan / black aabaya"
+                  placeholder="Enter product model or shoot item..."
                   value={productModel}
                   onChange={(e) => setProductModel(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-orange-500 focus:outline-none"
@@ -676,7 +676,7 @@ export const EmployeeAttendanceView = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. basith / aslam"
+                  placeholder="Enter cameraman name..."
                   value={cameraman}
                   onChange={(e) => setCameraman(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-orange-500 focus:outline-none"
@@ -689,7 +689,7 @@ export const EmployeeAttendanceView = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. basith"
+                  placeholder="Enter editor name..."
                   value={editor}
                   onChange={(e) => setEditor(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-orange-500 focus:outline-none"
